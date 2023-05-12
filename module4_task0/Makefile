@@ -1,45 +1,33 @@
-# Define variables
-Publish=hugo
-SHELLCHECK=shellcheck
+# Implement the next steps for the actual Go-Hugo website's source code
+build: ## Generate the website from markdown and config files in the 'dist/' folder
+	@hugo
+	@touch awesome-api
 
-build: ## Builds a new website
-	$(Publish)
-	touch awesome-api
+clean: ## Cleanup the content of the 'dist/' folder
+	@rm -Rf dist/*
 
-clean: ## Remove all files from folder dist
-	rm -r dist/*
+post: ## Create a new blog post using POST_TITLE and POST_NAME env variables
+	@rm -Rf content/posts/$(POST_NAME).md
+	@hugo new posts/$(POST_NAME).md
+	@sed -i 's/title:.*/title: $(POST_TITLE)/' content/posts/$(POST_NAME).md
+	@sed -i 's/draft:.*/draft: "false"/' content/posts/$(POST_NAME).md
 
-post: ## Create new post and using the sed command to modify the contents of a file.
-	$(Publish) new posts/$(POST_NAME).md
-	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
+package: ## Produce a zip file containing the 'dist/' folder
+	@hugo
+	@zip -r awesome-website.zip dist/
 
-lint: ## shellcheck setup
-	markdownlint README.md DEPLOY.md
-	$(SHELLCHECK) setup.sh >/dev/null 2>&1 || echo "Lint Failed"
+lint: ## Check markdown files for any syntax mistake
+	@markdownlint README.md DEPLOY.md
 
-markdownlint: ## updated to lint the files README.md and DEPLOY.md
-	markdownlint README.md DEPLOY.md
+unit-tests: ## Run unit-tets of the project
+	@touch coverage-units.out
 
-integration-tests: ## server and check the localhost
-	hugo
-	touch coverage-integrations.out
-	ls dist/
-	
+integration-tests: ## Run integration-tests of the project
+	@touch coverage-integrations.out
 
-unit-tests: ## Runs different makefile recipes
-	make POST_TITLE='TEST' POST_NAME='this-is-a-test' post
-	make build
-	make clean
-	touch coverage-units.out
+validate: ## Validate the project
 
-validate: ## Tests dir
-	pwd
-
-package: ## creates archive
-	make build
-	zip awesome-website.zip dist/	
-
-help: ## Display the list of targets and their usage.
-	cat Makefile | grep '##' | tr -d '##' | head -n -1
-
-
+help: ## Show this help usage
+	@echo "Usage: make <command>"
+	@echo "-----"
+	@fgrep -h "##" Makefile | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//' | head -9

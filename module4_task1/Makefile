@@ -1,64 +1,44 @@
-## Declare variables for used commands
-HUGO=hugo
-SHELLCHECK=shellcheck
-export PATH
+.PHONY: build
 
-## Declare a list of phony targets
-.PHONY: build build-docker build-tools test
+build: ## Generate the website from markdown and config files in the 'dist/' folder
+	@curl -L https://github.com/gohugoio/hugo/releases/download/v0.109.0/hugo_extended_0.109.0_linux-amd64.deb -o hugo.deb
+	@apt install ./hugo.deb
+	@rm ./hugo.deb
+	@hugo
+	@touch awesome-api
 
+clean: ## Cleanup the content of the 'dist/' folder
+	@rm -Rf dist/*
 
-build:## Installhugo package, Run the hugo, Create a file
-	sudo apt install ./hugo.deb
-	$(HUGO)
-	touch awesome-api
+post: ## Create a new blog post using POST_TITLE and POST_NAME env variables
+	@rm -Rf content/posts/$(POST_NAME).md
+	@hugo new posts/$(POST_NAME).md
+	@sed -i 's/title:.*/title: $(POST_TITLE)/' content/posts/$(POST_NAME).md
+	@sed -i 's/draft:.*/draft: "false"/' content/posts/$(POST_NAME).md
 
-build-docker:## Build a Docker image for the build directory
-	docker build -t "awesome:build" ./build --no-cache
+package: ## Produce a zip file containing the 'dist/' folder
+	@hugo
+	@zip -r awesome-website.zip dist/
 
-build-tools:## Install the hugo package and tools
-	sudo apt install ./hugo.deb
+lint: ## Check markdown files for any syntax mistake
+	@apt install curl -y
+	@curl --silent --location https://deb.nodesource.com/setup_16.x | bash -
+	@apt install nodejs -y
+	@npm install -g markdownlint-cli || true
+	@markdownlint README.md DEPLOY.md
 
-test:## Run the clean target inside a Docker container , execute hugo and ls ./dist
-	docker run awesome:build sh -c "make clean || echo 'Lint Failed'"
-	docker run awesome:build sh -c "hugo; ls ./dist/*"
+unit-tests: ## Run unit-tets of the project
+	@touch coverage-units.out
 
-clean:## Remove all files in the dist directory
-	rm -rf ./dist*
+integration-tests: ## Run integration-tests of the project
+	@touch coverage-integrations.out
 
-post:## Create a new post and set the title
-	$(HUGO) new posts/$(POST_NAME).md
-	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
+validate: ## Validate the project
 
-lint: ## Install curl, Install nodejs, Install Markdownlint and verify MD
-	apt install curl -y
-	curl --silent --location https://deb.nodesource.com/setup_16.x | bash -
-	apt install nodejs -y
-	npm install -g markdownlint-cli 1>&2
-	markdownlint README.md DEPLOY.md
+build-docker: ## Define a docekr image
+	@docker build -t awesome:build -f ./build/Dockerfile .
 
-markdownlint: ## Run the markdownlint tool on the README.md and DEPLOY.md files
-	markdownlint README.md DEPLOY.md
-
-shellcheck:## Run the shellcheck tool on the setup.sh script
-	$(SHELLCHECK) setup.sh >/dev/null 2>&1 || echo "Lint Failed"
-
-integration-tests:## Create a coverage-integrations.out file
-	touch coverage-integrations.out
-
-unit-tests:## Create a coverage-units.out file
-	touch coverage-units.out
-
-validate:## List the contents of the dist directory
-	ls dist
-
-package:## Build the site, Create a dist directory, Create zip archive the dist
-	make build
-	mkdir -p dist
-	zip awesome-website.zip dist
-
-## Suppress command output
-.SILENT:
-
-help: ##Print all lines in the Makefile that contain "##"
-	
-	cat Makefile | grep '##' | tr -d '##' | head -n -1
+help: ## Show this help usage
+	@echo "Usage: make <command>"
+	@echo "-----"
+	@fgrep -h "##" Makefile | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//' | head -9

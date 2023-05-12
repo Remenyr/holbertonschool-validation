@@ -1,17 +1,22 @@
-# Deployment Document
+# Operations team's FAQ
 
-- What is in the archive and how to unarchive it?
+## What is in the archive and how to unarchive it?
 
-- It is a compressed file that is the awesome-api binary and is 'dist directory'.
-  
-- What are the commands to start and stop the application?
+* In the `awesome-website.zip` archive you will encounter the `dist/` folder
+* To unarchive it in your current directory use the command line:
+`unzip awesome-website.zip`
 
-  - Use Hugo server, sintax type hugo server
+## What are the commands to start and stop the application?
 
-- How to customize where the application logs are written?
+* To generate (start) the go-hugo website run the command: `make build`
+* To clean (stop) the go-hugo website run the command: `make clean`
 
-- I do not know yet
+## How to customize where the application logs are written?
 
-- How to “quickly” verify that the application is running (healthcheck)?
+* You can customize the location of the logs by:
 
-- Check it out on local host [http://localhost:1313]
+## How to “quickly” verify that the application is running (healthcheck)?
+
+* To veryfy is the go-hugo wesite is runnig correctly run the command: `hugo server`
+* Then verify the status of the website in your localhost by clicking the
+`http://localhost:1313/` given by the previous step
