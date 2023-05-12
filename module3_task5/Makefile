@@ -1,28 +1,43 @@
-help: ## Show help command
-	@sed -ne '/@sed/!s/## //p' Makefile
+# Define variables
+Publish=hugo
+SHELLCHECK=shellcheck
 
-build:  ## Create Website
-	@hugo
+build: ## Builds a new website
+	$(Publish)
 
-clean:  ## Delete content of dist folder
-	@rm -rf dist/*
+clean: ## Remove all files from folder dist
+	rm -r dist/*
 
-post:  ## Create a post
-	@hugo new ./content/posts/$(POST_NAME).md
-	@sed -i '/title:*/c\title: "$(POST_TITLE)"' ./content/posts/$(POST_NAME).md
+post: ## Create new post and using the sed command to modify the contents of a file.
+	$(Publish) new posts/$(POST_NAME).md
+	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
 
-package: ## zip website
-	@hugo
-	@zip awesome-website.zip ./dist
+lint: ## shellcheck setup
+	markdownlint README.md
+	markdownlint DEPLOY.md
+	$(SHELLCHECK) setup.sh >/dev/null 2>&1 || echo "Lint Failed"
 
-lint: ## lint with markdown
-	@markdownlint README.md
-	@markdownlint DEPLOY.md
+markdownlint: ## updated to lint the files README.md and DEPLOY.md
+	markdownlint README.md
+	markdownlint DEPLOY.md
 
-unit-tests: ## test file
+integration-tests: ## server and check the localhost
+	hugo
+	ls dist/
+
+unit-tests: ## Runs different makefile recipes
+	make POST_TITLE='TEST' POST_NAME='this-is-a-test' post
+	make build
+	make clean
+
+validate: ## Tests dir
+	pwd
+
+package: ## creates archive
+	make build
+	zip awesome-website.zip dist/	
+
+help: ## Display the list of targets and their usage.
+	cat Makefile | grep '##' | tr -d '##' | head -n -1
 
 
-integration-tests: ## integrate file
-
-
-validate: ## valide file

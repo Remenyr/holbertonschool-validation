@@ -1,29 +1,25 @@
-# Operations team's FAQ
+# Deployment Document
 
-## What is in the archive and how to unarchive it?
+- What is in the archive and how to unarchive it?
 
-* In the `awesome-website.zip` archive you will encounter the `dist/` folder
-* To unarchive it in your current directory use the command line:
-`unzip awesome-website.zip`
+- It is a compressed file that is the awesome-api binary and is 'dist directory'.
 
-## What are the commands to start and stop the application?
+- Syntax to unzip the zip package
+  
+  Run unzip awesome-website.zip
 
-* To generate (start) the go-hugo website run the command: `make build`
-* To clean (stop) the go-hugo website run the command: `make clean`
+- How to verify the version
+  
+  Run git tag
 
-## How to customize where the application logs are written?
+- What are the commands to start and stop the application?
 
-* You can customize the location of the logs by:
+  - Use Hugo server, sintax type hugo server
 
-## How to “quickly” verify that the application is running (healthcheck)?
+- How to customize where the application logs are written?
 
-* To veryfy is the go-hugo wesite is runnig correctly run the command:
-`hugo server`
-* Then verify the status of the website in your localhost by clicking the
-`http://localhost:1313/` given by the previous step
+- I do not know yet
 
-## Create a release with the archive and content of DEPLOY.md, triggered by a tag
+- How to “quickly” verify that the application is running (healthcheck)?
 
-* Create a `GitHub Release` using the
-[“softprops/gh-release” GitHub Action](https://github.com/softprops/action-gh-release)
-named `1.0.0` and pointing to the tag `1.0.0`
+- Check it out on local host [http://localhost:1313]

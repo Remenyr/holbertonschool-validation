@@ -1,13 +1,16 @@
-build:## Generate the website from the markdown and configuration files in the directory dist/.
-	@hugo --destination ./dist
+# Define variables
+Publish=hugo
 
-clean:## Cleanup the content of the directory dist/.
-	@rm -Rf ./dist
+build: ## Builds a new website
+	$(Publish)
 
-post:## Create a new blog post whose filename and title come from the environment variables POST_TITLE and POST_NAME.
-	@rm -Rf /content/posts/$(POST_NAME).md
-	@hugo new posts/$(POST_NAME).md
-	@sed -i 's+title.*+title: "$(POST_TITLE)"+g' content/posts/$(POST_NAME).md
+clean: ## Remove all files from folder dist
+	rm -r dist/*
 
-help:## Prints out the list of targets and their usage.
-	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+post: ## Create new post and using the sed command to modify the contents of a file.
+	$(Publish) new posts/$(POST_NAME).md
+	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
+# Overwrite the content of a text file without generating a new one (option -i)
+
+help: ## Display the list of targets and their usage.
+	cat Makefile | grep '##' | tr -d '##' | head -n -1

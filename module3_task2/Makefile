@@ -1,28 +1,43 @@
-build:	## Generate the website from the markdown and configuration files in the directory dist/
-	hugo -s . -d dist/
+# Define variables
+Publish=hugo
+SHELLCHECK=shellcheck
 
-post:	## Create a new blog post whose filename and title come from the environment variables POST_TITLE and POST_NAME
-	hugo new posts/$(POST_NAME).md
-	sed -i 's/title: .*/title:"$(POST_TITLE)"/' content/posts/$(POST_NAME).md 
+build: ## Builds a new website
+	$(Publish)
 
-clean:	## Cleanup the content of the directory dist/
-	rm -rf dist/
+clean: ## Remove all files from folder dist
+	rm -r dist/*
 
-help: Makefile ## Show this help usage
-	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+post: ## Create new post and using the sed command to modify the contents of a file.
+	$(Publish) new posts/$(POST_NAME).md
+	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
 
-package:
+lint: ## shellcheck setup
+	markdownlint README.md
+	markdownlint DEPLOY.md
+	$(SHELLCHECK) setup.sh >/dev/null 2>&1 || echo "Lint Failed"
+
+markdownlint: ## updated to lint the files README.md and DEPLOY.md
+	markdownlint README.md
+	markdownlint DEPLOY.md
+
+integration-tests: ## server and check the localhost
 	hugo
-	zip awesome-website.zip awesome-api dist/ 
+	ls dist/
 
-lint:
-	markdownlint "*.md"
+unit-tests: ## Runs different makefile recipes
+	make POST_TITLE='TEST' POST_NAME='this-is-a-test' post
+	make build
+	make clean
 
-unit-tests: ## run unit tests
-	@echo "all tests done"
+validate: ## Tests dir
+	pwd
 
-integration-tests: ## run integration-tests
-	@echo "all integration-tests done"
+package: ## creates archive
+	make build
+	zip awesome-website.zip dist/	
 
-validate: ## run validate
-	@echo "all validations done"
+help: ## Display the list of targets and their usage.
+	cat Makefile | grep '##' | tr -d '##' | head -n -1
+
+
