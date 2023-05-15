@@ -4,8 +4,7 @@ Project for DevOps on Holberton School
 
 ## Prerequisites
 
-GoHugo on extended version - v0.84 or above
-make - v3.81 or above
+GoHugo on extended version - v0.84 or above make - v3.81 or above
 
 ## Lifecycle
 
