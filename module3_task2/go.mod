@@ -1,4 +1,4 @@
-module github.com/Apinedas/awesome-api
+module github.com/ObedRav/awesome-api
 
 go 1.20
 
